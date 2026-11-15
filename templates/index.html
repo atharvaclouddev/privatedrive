@@ -3,17 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-    <title>PrivateDrive - Remote Data & Virtual Drive Portal</title>
+    <title>PrivateDrive — Cloud Storage Virtualization Engine</title>
     <link rel="stylesheet" href="/static/style.css">
     <script src="/static/qrcode.min.js"></script>
 </head>
 <body class="dashboard-body">
 
-    <!-- Navbar -->
+    <!-- Top Technical Telemetry Ribbon -->
+    <div class="status-ribbon">
+        <div class="status-metrics">
+            <span class="metric-pill">NODE: <strong>LOCAL HOST</strong></span>
+            <span class="metric-pill">PROTOCOL: <strong>WEBDAV / RFC 4918</strong></span>
+            <span class="metric-pill">ENCRYPTION: <strong>TLS 1.3</strong></span>
+            <span class="metric-pill">I/O: <strong>DIRECT BLOCK</strong></span>
+        </div>
+        <div>
+            <span class="metric-pill">STATUS: <strong>ONLINE</strong></span>
+        </div>
+    </div>
+
+    <!-- Main Navigation Bar -->
     <header class="navbar">
         <div class="nav-brand">
             <div class="brand-icon">
-                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2">
                     <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
                     <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
                     <line x1="6" y1="6" x2="6.01" y2="6"></line>
@@ -22,22 +35,22 @@
             </div>
             <div>
                 <span class="brand-name">PrivateDrive</span>
-                <span class="badge-online"><span class="pulse-dot"></span> WebDAV & Remote Portal Active</span>
+                <span class="badge-online"><span class="pulse-dot"></span> Edge Node Active</span>
             </div>
         </div>
 
         <div class="nav-actions">
-            <button class="btn-secondary" onclick="openQrModal()">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <button class="btn-secondary btn-sm" onclick="openQrModal()" title="Fast Connect via Mobile">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
                     <rect x="3" y="3" width="7" height="7"></rect>
                     <rect x="14" y="3" width="7" height="7"></rect>
                     <rect x="14" y="14" width="7" height="7"></rect>
                     <rect x="3" y="14" width="7" height="7"></rect>
                 </svg>
-                <span class="hide-mobile">QR Access</span>
+                <span class="hide-mobile">QR Connect</span>
             </button>
-            <button class="btn-danger" onclick="handleLogout()" title="Logout">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <button class="btn-danger btn-sm" onclick="handleLogout()" title="Disconnect Session">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                     <polyline points="16 17 21 12 16 7"></polyline>
                     <line x1="21" y1="12" x2="9" y2="12"></line>
@@ -48,20 +61,20 @@
 
     <main class="container">
 
-        <!-- Main Banner: Virtual Drive Credentials -->
+        <!-- Hero Virtual Drive Infrastructure Banner -->
         <section class="drive-banner">
-            <div class="banner-badge">VIRTUAL NETWORK DRIVE (WEBDAV)</div>
-            <h2>Mount this computer as a Live Drive on any other device</h2>
-            <p class="banner-sub">No files are transferred or duplicated. Software directly reads and saves records live on this machine.</p>
+            <div class="banner-badge">STORAGE VIRTUALIZATION ENGINE</div>
+            <h2>Mount this machine as a Live Virtual Drive (Z:\)</h2>
+            <p class="banner-sub">Zero file replication or cloud synchronization delays. Remote clients execute atomic read/write I/O directly against host storage.</p>
 
             <div class="credentials-grid">
-                <!-- Drive URL -->
+                <!-- Virtual Drive URL -->
                 <div class="cred-card">
-                    <span class="cred-label">DRIVE URL (WEB & WEBDAV)</span>
+                    <span class="cred-label">VIRTUAL DRIVE ENDPOINT</span>
                     <div class="cred-value-row">
-                        <span id="activeDriveUrl" class="cred-val">Loading...</span>
-                        <button class="btn-icon-subtle" onclick="copyText(state.active_drive, 'Drive URL copied!')" title="Copy">
-                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                        <span id="activeDriveUrl" class="cred-val">Negotiating tunnel...</span>
+                        <button class="btn-icon-subtle" onclick="copyText(state.active_drive, 'Drive URL copied!', this)" title="Copy">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
                                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                             </svg>
@@ -71,11 +84,11 @@
 
                 <!-- Username -->
                 <div class="cred-card">
-                    <span class="cred-label">USERNAME</span>
+                    <span class="cred-label">AUTH USERNAME</span>
                     <div class="cred-value-row">
                         <span id="credUsername" class="cred-val">admin</span>
-                        <button class="btn-icon-subtle" onclick="copyText(state.username, 'Username copied!')" title="Copy">
-                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                        <button class="btn-icon-subtle" onclick="copyText(state.username, 'Username copied!', this)" title="Copy">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
                                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                             </svg>
@@ -85,11 +98,11 @@
 
                 <!-- Password -->
                 <div class="cred-card">
-                    <span class="cred-label">PASSWORD</span>
+                    <span class="cred-label">AUTH TOKEN / PASS</span>
                     <div class="cred-value-row">
                         <span id="credPassword" class="cred-val">••••••••</span>
-                        <button class="btn-icon-subtle" onclick="copyText(state.password, 'Password copied!')" title="Copy">
-                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                        <button class="btn-icon-subtle" onclick="copyText(state.password, 'Password copied!', this)" title="Copy">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
                                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                             </svg>
@@ -99,111 +112,110 @@
             </div>
         </section>
 
-        <!-- Interactive Setup Guide for Devices -->
+        <!-- OS Mounting Matrix -->
         <section class="guide-box">
             <div class="guide-tabs">
                 <button class="guide-tab-btn active" onclick="switchGuide('win', this)">
-                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor">
                         <path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.901-1.799"/>
                     </svg>
-                    Windows Laptop (Map Z: Drive)
+                    Windows Client (Drive Z:)
                 </button>
                 <button class="guide-tab-btn" onclick="switchGuide('mac', this)">
-                    Apple Mac (Finder)
+                    macOS (Finder Volume)
                 </button>
                 <button class="guide-tab-btn" onclick="switchGuide('mobile', this)">
-                    iPhone & Android Phone
+                    iOS & Android (Files App)
                 </button>
             </div>
 
-            <!-- Windows Instructions -->
+            <!-- Windows Client Guide -->
             <div id="guide-win" class="guide-panel active">
                 <div class="guide-fast-command">
-                    <span class="cmd-label">⚡ 1-Click Setup (Open Command Prompt on second laptop & paste this):</span>
+                    <span class="cmd-label">⚡ Automated CLI Mount (Execute in standard Command Prompt):</span>
                     <div class="code-box">
-                        <code id="winCliCommand">Loading command...</code>
-                        <button class="btn-secondary btn-sm" onclick="copyText(document.getElementById('winCliCommand').innerText, 'Windows command copied!')">Copy Command</button>
+                        <code id="winCliCommand">Generating client command...</code>
+                        <button class="btn-primary btn-sm" onclick="copyText(document.getElementById('winCliCommand').innerText, 'Windows mount command copied!', this)">Copy Command</button>
                     </div>
                 </div>
 
                 <div class="steps-list">
-                    <h4>Or Manual Setup via File Explorer:</h4>
+                    <h4>Manual GUI Mounting (Windows File Explorer):</h4>
                     <ol>
-                        <li>On the second laptop, open <strong>File Explorer</strong> and right-click <strong>"This PC"</strong> → select <strong>"Map network drive..."</strong>.</li>
-                        <li>Choose Drive Letter <strong>Z:</strong></li>
-                        <li>In the <strong>Folder</strong> box, paste: <code id="guideWinUrl" class="inline-code">Loading...</code></li>
-                        <li>Check the box: <strong>"Connect using different credentials"</strong> → Click <strong>Finish</strong>.</li>
-                        <li>Type Username <code id="guideWinUser" class="inline-code">admin</code> and your Password → Click OK.</li>
-                        <li>🎉 <strong>Drive Z:\ will immediately appear in your File Explorer!</strong> In Tally, Excel, or any software, simply select Drive Z:!</li>
+                        <li>Open <strong>File Explorer</strong> → right-click <strong>This PC</strong> → select <strong>Map network drive...</strong></li>
+                        <li>Select Drive Letter <strong>Z:</strong></li>
+                        <li>In <strong>Folder</strong>, enter: <code id="guideWinUrl" class="inline-code">...</code></li>
+                        <li>Check <strong>"Connect using different credentials"</strong> → Click <strong>Finish</strong>.</li>
+                        <li>Enter Username <code id="guideWinUser" class="inline-code">admin</code> and your password → Click OK.</li>
+                        <li><strong>Drive Z:\ will mount instantly.</strong> Software (Tally, ERPs, Excel) can point directly to <code>Z:\</code>.</li>
                     </ol>
                 </div>
             </div>
 
-            <!-- Mac Instructions -->
+            <!-- macOS Guide -->
             <div id="guide-mac" class="guide-panel">
                 <ol class="steps-list">
-                    <li>Open <strong>Finder</strong> on your Mac.</li>
-                    <li>Press <kbd>Command</kbd> + <kbd>K</kbd> (or click <strong>Go</strong> → <strong>Connect to Server</strong>).</li>
-                    <li>In the Server Address box, paste your Drive URL.</li>
-                    <li>Click <strong>Connect</strong> and enter Username <code class="inline-code">admin</code> and Password.</li>
-                    <li>The drive mounts in Finder as a shared network volume!</li>
+                    <li>Open <strong>Finder</strong> on macOS.</li>
+                    <li>Press <kbd>Cmd</kbd> + <kbd>K</kbd> (Connect to Server).</li>
+                    <li>Enter: <code class="inline-code" id="guideMacUrl">...</code></li>
+                    <li>Select <strong>Registered User</strong>, enter credentials, and mount as a shared volume.</li>
                 </ol>
             </div>
 
-            <!-- Mobile Instructions -->
+            <!-- Mobile Guide -->
             <div id="guide-mobile" class="guide-panel">
                 <ol class="steps-list">
-                    <li><strong>On iPhone/iPad:</strong> Open the built-in <strong>Files</strong> app → tap the <strong>•••</strong> (three dots at top right) → tap <strong>"Connect to Server"</strong> → paste your Drive URL → choose "Registered User" and enter username/password.</li>
-                    <li><strong>On Android:</strong> Open <strong>Cx File Explorer</strong> (free from Play Store) → tap <strong>Network</strong> tab → tap <strong>+ (New location)</strong> → tap <strong>Remote</strong> → tap <strong>WebDAV</strong> → paste the Host URL, username, and password.</li>
+                    <li><strong>Apple iOS:</strong> Open native <strong>Files</strong> app → tap <strong>•••</strong> → <strong>Connect to Server</strong> → enter endpoint.</li>
+                    <li><strong>Android:</strong> Open <strong>Cx File Explorer</strong> → <strong>Network</strong> → <strong>+ (New)</strong> → <strong>Remote</strong> → <strong>WebDAV</strong>.</li>
                 </ol>
             </div>
         </section>
 
-        <!-- Web File Explorer & Direct Actions -->
+        <!-- Live Storage Explorer -->
         <section class="section-card">
             <div class="section-header">
                 <div>
-                    <h3 class="section-title">Data Storage Explorer (Live Folder)</h3>
-                    <p class="subtle-text">Storage Folder on Host: <code id="storagePathLabel">...</code></p>
+                    <h3 class="section-title">Host Storage Directory</h3>
+                    <p class="subtle-text">Host Path: <code id="storagePathLabel" class="inline-code">...</code></p>
                 </div>
                 <div class="section-actions">
-                    <button class="btn-secondary" onclick="fetchFiles()">Refresh</button>
-                    <a href="/api/download-all" class="btn-primary">Download All (ZIP)</a>
+                    <button class="btn-secondary btn-sm" onclick="fetchFiles()">Refresh</button>
+                    <a href="/api/download-all" class="btn-primary btn-sm">Download Archive (ZIP)</a>
                 </div>
             </div>
 
-            <!-- Drag & Drop Zone -->
+            <!-- Upload Area -->
             <div id="dropZone" class="drop-zone" onclick="document.getElementById('fileInput').click()">
                 <input type="file" id="fileInput" multiple style="display: none;" onchange="handleUpload(this.files)">
                 <div class="drop-zone-icon">
-                    <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                         <polyline points="17 8 12 3 7 8"></polyline>
                         <line x1="12" y1="3" x2="12" y2="15"></line>
                     </svg>
                 </div>
-                <h3>Drag & Drop files or <span class="highlight-text">Browse to Add</span></h3>
-                <p>Any file uploaded here is immediately visible inside Drive Z:\ on your second laptop</p>
+                <h3>Drag & Drop files or <span class="highlight-text">Browse Host Disk</span></h3>
+                <p>Any file added here reflects immediately inside Drive Z:\ on remote clients</p>
             </div>
 
             <!-- File List -->
             <div id="fileList" class="file-list">
-                <div class="empty-state">Loading files...</div>
+                <div class="empty-state">Loading storage catalog...</div>
             </div>
         </section>
 
-        <!-- Shared Clipboard / Quick Notes -->
+        <!-- Real-Time Shared Clipboard -->
         <section class="section-card">
-            <h3 class="section-title">Instant Clipboard & Notes</h3>
-            <p class="subtle-text">Send text, serial keys, voucher numbers, or links between your main computer and other devices</p>
+            <h3 class="section-title">Distributed Clipboard & Notes</h3>
+            <p class="subtle-text">Synchronize arbitrary text, connection tokens, or invoice numbers across connected nodes</p>
 
             <div class="notes-input-row">
-                <input type="text" id="noteInput" placeholder="Type text to share across devices...">
-                <button class="btn-primary" onclick="submitNote()">Share</button>
+                <input type="text" id="noteInput" placeholder="Broadcast string across connected devices...">
+                <button class="btn-primary btn-sm" onclick="submitNote()">Broadcast</button>
             </div>
 
             <div id="notesContainer" class="notes-list">
-                <!-- Rendered dynamically -->
+                <!-- Notes injected dynamically -->
             </div>
         </section>
 
@@ -213,18 +225,18 @@
     <div id="qrModal" class="modal-backdrop hidden" onclick="closeQrModal(event)">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-header">
-                <h3>Mobile Fast Connect</h3>
+                <h3 style="font-size: 1.1rem; font-weight: 700;">Fast Edge Connect</h3>
                 <button class="btn-close" onclick="closeQrModal()">&times;</button>
             </div>
             <div class="modal-body">
-                <p>Scan with your phone camera to open this portal:</p>
+                <p class="subtle-text">Scan with any mobile camera to load portal:</p>
                 <div id="qrContainer" class="qr-box"></div>
                 <div class="qr-url-text" id="qrUrlLabel"></div>
             </div>
         </div>
     </div>
 
-    <!-- Toast -->
+    <!-- Notification Toast -->
     <div id="toast" class="toast hidden"></div>
 
     <script src="/static/app.js"></script>

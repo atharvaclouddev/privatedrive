@@ -53,11 +53,13 @@ async function fetchStatus() {
         document.getElementById('credPassword').innerText = state.password;
         document.getElementById('storagePathLabel').innerText = state.storage_dir;
 
-        // Update Windows Command Box
+        // Update Windows & Mac Command Box
         const winCmd = `net use Z: "${state.active_drive}" /user:${state.username} ${state.password} /persistent:yes`;
         document.getElementById('winCliCommand').innerText = winCmd;
         document.getElementById('guideWinUrl').innerText = state.active_drive;
         document.getElementById('guideWinUser').innerText = state.username;
+        const macEl = document.getElementById('guideMacUrl');
+        if (macEl) macEl.innerText = state.active_drive;
 
     } catch (e) {
         console.error('Error fetching status', e);
@@ -244,18 +246,36 @@ function closeQrModal(e) {
 
 // ----------------- Helpers -----------------
 
-function copyText(text, msg) {
+function copyText(text, msg, btnElement) {
     if (!text) return;
-    navigator.clipboard.writeText(text).then(() => showToast(msg || 'Copied!'))
-        .catch(() => {
-            const ta = document.createElement('textarea');
-            ta.value = text;
-            document.body.appendChild(ta);
-            ta.select();
-            document.execCommand('copy');
-            document.body.removeChild(ta);
-            showToast(msg || 'Copied!');
-        });
+    const onSuccess = () => {
+        showToast(msg || 'Copied to clipboard!');
+        if (btnElement) {
+            const originalHTML = btnElement.innerHTML;
+            btnElement.innerHTML = `✓ Copied!`;
+            btnElement.style.color = 'var(--accent)';
+            setTimeout(() => {
+                btnElement.innerHTML = originalHTML;
+                btnElement.style.color = '';
+            }, 1800);
+        }
+    };
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(onSuccess).catch(() => fallbackCopy(text, onSuccess));
+    } else {
+        fallbackCopy(text, onSuccess);
+    }
+}
+
+function fallbackCopy(text, cb) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    if (cb) cb();
 }
 
 function showToast(msg) {
