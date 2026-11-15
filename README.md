@@ -57,7 +57,7 @@ Mounts natively as:                              Finder / iOS Files App
 
 ### 1. Clone & Install
 ```bash
-git clone https://github.com/your-username/privatedrive.git
+git clone https://github.com/atharvaclouddev/privatedrive.git
 cd privatedrive
 pip install -r requirements.txt
 ```
