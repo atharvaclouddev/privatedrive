@@ -2,10 +2,10 @@
 
 > Self-hosted, private Virtual Network Drive (`Z:\`) accessible over WAN without third-party cloud storage, port-forwarding, or public static IPs.
 
-[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://python.org)
+[![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white)](https://python.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Protocol](https://img.shields.io/badge/Protocol-WebDAV%20(RFC%204918)-brightgreen)](#)
-[![Client](https://img.shields.io/badge/Client-Native%20OS%20Mount-orange)](#)
+[![Protocol](https://img.shields.io/badge/Protocol-WebDAV_RFC_4918-brightgreen)](#)
+[![Client](https://img.shields.io/badge/Client-Native_OS_Mount-orange)](#)
 
 ---
 
