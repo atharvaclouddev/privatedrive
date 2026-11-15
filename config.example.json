@@ -1,0 +1,8 @@
+{
+    "username": "admin",
+    "password": "ChangeMe1234",
+    "port": 8080,
+    "storage_dir": "data_storage",
+    "tunnel_enabled": true,
+    "secret_key": "generate-your-secret-key-here"
+}

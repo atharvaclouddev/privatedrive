@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PrivateDrive - Login</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="login-body">
+    <div class="login-card">
+        <div class="brand-icon-big">
+            <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+                <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+                <line x1="6" y1="6" x2="6.01" y2="6"></line>
+                <line x1="6" y1="18" x2="6.01" y2="18"></line>
+            </svg>
+        </div>
+        <h1 class="login-title">PrivateDrive</h1>
+        <p class="login-subtitle">Remote Virtual Network Drive & Data Portal</p>
+
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <div class="input-group">
+                <label>Username</label>
+                <input type="text" id="usernameInput" required autocomplete="username" placeholder="Username" value="admin">
+            </div>
+
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" id="passwordInput" required autocomplete="current-password" placeholder="Password">
+            </div>
+
+            <div id="errorMsg" class="error-badge hidden"></div>
+
+            <button type="submit" id="submitBtn" class="btn-primary btn-full">
+                <span>Sign In</span>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+            </button>
+        </form>
+
+        <div class="login-footer">
+            <span>🔒 Encrypted WebDAV & HTTPS • Protected Data Server</span>
+        </div>
+    </div>
+
+    <script>
+        async function handleLogin(e) {
+            e.preventDefault();
+            const u = document.getElementById('usernameInput').value.trim();
+            const p = document.getElementById('passwordInput').value.trim();
+            const err = document.getElementById('errorMsg');
+            const btn = document.getElementById('submitBtn');
+
+            err.classList.add('hidden');
+            btn.disabled = true;
+            btn.innerText = 'Verifying...';
+
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: u, password: p })
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    window.location.href = data.redirect || '/';
+                } else {
+                    err.innerText = data.error || 'Access denied';
+                    err.classList.remove('hidden');
+                }
+            } catch (e) {
+                err.innerText = 'Connection error. Please try again.';
+                err.classList.remove('hidden');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Sign In';
+            }
+        }
+    </script>
+</body>
+</html>

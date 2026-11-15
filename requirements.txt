@@ -1,0 +1,5 @@
+flask>=3.0.0
+wsgidav>=4.0.0
+cheroot>=10.0.0
+requests>=2.30.0
+werkzeug>=3.0.0
