@@ -1,0 +1,7 @@
+# Tell GitHub Linguist to treat static assets and templates as vendored/documentation
+# so that the repository's primary language displays as Python.
+static/* linguist-vendored
+templates/* linguist-vendored
+*.html linguist-detectable=false
+*.css linguist-detectable=false
+*.js linguist-detectable=false

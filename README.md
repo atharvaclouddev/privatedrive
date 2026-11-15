@@ -1,117 +1,126 @@
-# PrivateDrive 🚀
+# PrivateDrive
 
-> **Turn any computer into a self-hosted, secure Virtual Network Drive (`Z:\`) accessible from anywhere across the globe — with zero third-party cloud storage, zero port-forwarding, and 100% free.**
+> Self-hosted, private Virtual Network Drive (`Z:\`) accessible over WAN without third-party cloud storage, port-forwarding, or public static IPs.
 
-[![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python&logoColor=white)](https://python.org)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![WebDAV](https://img.shields.io/badge/Protocol-WebDAV%20%7C%20HTTPS-green)](#)
-[![Platforms](https://img.shields.io/badge/Clients-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20iOS%20%7C%20Android-lightgrey)](#)
-
----
-
-## 💡 The Problem It Solves
-
-Small businesses, accountants, and engineers frequently run software that requires a **single source of truth** (e.g. **TallyPrime**, **Marg**, **Busy ERP**, **AutoCAD**, multi-user **Excel** sheets, or local databases).
-
-* **Cloud Sync (Google Drive / Dropbox) Fails Here:** Syncing database files creates conflicting copies, duplicate voucher numbers, and index corruption.
-* **Traditional VPNs / Static IPs:** Expensive, require public static IPs, and involve complex router port-forwarding.
-
-**PrivateDrive solves this:** It runs a lightweight server on your main machine, exposes an encrypted HTTPS WebDAV tunnel, and allows secondary laptops to mount it as a **native Drive (`Z:\`)**. Every keystroke and file save writes **live to the host hard drive**.
+[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://python.org)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Protocol](https://img.shields.io/badge/Protocol-WebDAV%20(RFC%204918)-brightgreen)](#)
+[![Client](https://img.shields.io/badge/Client-Native%20OS%20Mount-orange)](#)
 
 ---
 
-## 🏗️ Architecture
+## Why PrivateDrive?
+
+Traditional cloud sync tools (Google Drive, Dropbox, OneDrive) use **asynchronous file replication**. While adequate for documents, this architecture fails for desktop database and accounting workloads (such as **TallyPrime**, **Marg ERP**, **Busy**, **MS Access**, and multi-user spreadsheets):
+* Asynchronous replication creates **split-brain conflicts**, duplicate transaction IDs, and database index corruption.
+* Standard SMB/Samba network shares cannot easily traverse the internet because most residential ISPs block TCP port 445 for security.
+* Traditional VPNs require dedicated public static IPs and manual router firewall configuration.
+
+**PrivateDrive** resolves this by running a lightweight, multi-threaded WebDAV server on the host machine and exposing it over an encrypted reverse TLS tunnel. Remote clients mount the host directly as a native drive letter (**`Z:\`**). File reads and writes are executed live against the host disk with zero file replication or desynchronization.
+
+---
+
+## System Architecture
 
 ```text
-[ Main Host Computer ]
-(Stores live database / data folder)
+[ Host Machine (Edge Node) ]
+  └── Storage Directory (Single Source of Truth)
        │
        ├── WebDAV Engine (WsgiDAV + Cheroot Multi-threaded WSGI)
-       ├── Web Dashboard & REST API (Flask)
-       └── Reverse HTTPS Tunnel (OpenSSH / Zero-Config)
+       ├── Web Dashboard & Management API (Flask)
+       └── Reverse TLS Tunnel (OpenSSH / Auto-negotiated)
                   │
-             [ Encrypted TLS Tunnel ]
+             [ Encrypted TLS 1.3 Tunnel ]
                   │
        ┌──────────┴──────────────────────────────────────┐
        │                                                 │
-[ Windows Laptop ]                                [ Mobile / Mac ]
-Mounts natively as:                              Finder / iOS Files App
-"Drive Z:\" in File Explorer                     Native WebDAV Client
-(Tally / Excel reads & saves live)               (Browse, view, upload)
+[ Remote Windows Client ]                         [ Mobile / macOS ]
+Mounts natively as:                              Finder / iOS Files / Cx Explorer
+"Drive Z:\" via WebClient                        Native WebDAV Client
+(Direct random I/O, no sync delays)              (Direct browsing & upload)
 ```
 
 ---
 
-## 🌟 Key Features
+## Key Features
 
-* **⚡ Native Drive Mapping:** Mounts as an actual drive letter (`Z:\`) in Windows File Explorer or a network share in macOS Finder.
-* **🔒 Single Source of Truth:** No file downloads or transfers. Applications read and write records directly to the host machine.
-* **🌐 Zero-Config Global Tunnel:** Automatic reverse SSH tunnel provides an instant, valid HTTPS link (`https://*.app.lhr.life`). No static IP, dynamic DNS, or port forwarding required.
-* **🛡️ Built-in Security:** Protected by HTTP Basic Authentication, path sanitization, and end-to-end TLS encryption.
-* **🖥️ Cross-Platform Web Dashboard:** Includes a sleek dark-themed browser interface with drag-and-drop file upload, ZIP downloader, and shared clipboard.
-* **📱 1-Scan Mobile Pairing:** Automatically prints an ASCII QR code in the terminal for instant phone connection.
+* **Native Storage Virtualization:** Mounts as an actual drive (`Z:\`) in Windows File Explorer or a network volume in macOS Finder. Applications interact with it as if it were a physical disk.
+* **Single Source of Truth:** Enforces strict data consistency. No local copies are created on the client, eliminating multi-master conflicts.
+* **Zero-Config NAT Traversal:** Bypasses CGNAT and firewalls using an automated reverse SSH tunnel, yielding an immediate valid HTTPS endpoint (`https://*.app.lhr.life`).
+* **Protocol & Authentication Hardening:** Specifically engineered to handle Windows WebClient quirks—intercepts anonymous `OPTIONS` probes and negotiates HTTP Basic Authentication over TLS.
+* **Zero Client Software:** Remote machines do not need any custom client software installed; they rely entirely on the operating system's built-in network drive capabilities.
+* **Built-in Management Portal:** Includes a browser-based management dashboard, shared clipboard, and terminal ASCII QR codes for rapid mobile connection.
 
 ---
 
-## 🚀 Quick Start (In 30 Seconds)
+## Quick Start
 
-### 1. Clone & Install
+### 1. Installation
+
 ```bash
 git clone https://github.com/atharvaclouddev/privatedrive.git
 cd privatedrive
 pip install -r requirements.txt
 ```
 
-### 2. Start the Server
-* **On Windows:** Double-click `run.bat` (or run `python app.py`)
-* **On Linux / macOS:** Run `./run.sh` (or `python3 app.py`)
+### 2. Launching the Server
 
-The terminal will print:
+* **Windows:** Run `run.bat` (or `python app.py`)
+* **Linux / macOS:** Run `./run.sh` (or `python3 app.py`)
+
+The server initializes the local engine and prints connection credentials:
+
 ```text
 ==============================================================
- 🚀 PRIVATEDRIVE GLOBAL ACCESS READY (Any Device, Anywhere)
+  PRIVATEDRIVE GLOBAL ACCESS READY
 ==============================================================
- • Web Dashboard  : https://xyz.app.lhr.life
- • Virtual Drive  : https://xyz.app.lhr.life/drive
+ • Web Dashboard  : https://<domain>.app.lhr.life
+ • Virtual Drive  : https://<domain>.app.lhr.life/drive
  • Username       : admin
- • Password       : PassXXXX
+ • Password       : <auto-generated>
 ==============================================================
 
-[Windows 'Map Network Drive' Command (Paste in second laptop cmd)]:
-net use Z: "https://xyz.app.lhr.life/drive" /user:admin PassXXXX /persistent:yes
+[Windows 'Map Network Drive' Command]:
+net use Z: "https://<domain>.app.lhr.life/drive" /user:admin <password> /persistent:yes
 ```
 
 ---
 
-## 💻 How to Connect from Any Device
+## Client Connection Guide
 
-### 🪟 Windows (Map Drive Z:)
-Open **Command Prompt** (not administrator) on your second laptop and run:
+### Windows (Mount as Drive Z:)
+
+Open a standard **Command Prompt** (not elevated) on the client machine:
+
 ```cmd
-net use Z: "https://xyz.app.lhr.life/drive" /user:admin YourPassword /persistent:yes
+net use Z: "https://<domain>.app.lhr.life/drive" /user:admin <password> /persistent:yes
 ```
-*Open File Explorer → **Drive `Z:\`** is now accessible under "This PC"!*
 
-### 🍎 macOS
-1. Open **Finder** → press <kbd>Cmd</kbd> + <kbd>K</kbd>.
-2. Paste: `https://xyz.app.lhr.life/drive`
-3. Enter your username and password.
+Alternatively, mount via **File Explorer**:
+1. Open File Explorer → Right-click **This PC** → **Map network drive...**
+2. Select Drive **`Z:`** and enter the folder URL: `https://<domain>.app.lhr.life/drive`
+3. Check **Connect using different credentials**, click **Finish**, and enter your credentials.
 
-### 📱 iPhone / iPad
-1. Open the built-in **Files** app.
-2. Tap the **•••** icon → **Connect to Server**.
-3. Enter `https://xyz.app.lhr.life/drive` and log in.
+### macOS (Finder)
+1. Open **Finder** → Press <kbd>Cmd</kbd> + <kbd>K</kbd> (Connect to Server).
+2. Enter: `https://<domain>.app.lhr.life/drive`
+3. Select **Registered User** and provide the username and password.
 
-### 🤖 Android
-1. Install **Cx File Explorer** (or Solid Explorer).
-2. Go to **Network** → **+ (New Location)** → **Remote** → **WebDAV**.
-3. Enter your Drive URL and credentials.
+### iOS / iPadOS
+1. Open the native **Files** app.
+2. Tap the **•••** menu → **Connect to Server**.
+3. Enter `https://<domain>.app.lhr.life/drive` and authenticate.
+
+### Android
+1. Open any WebDAV-compatible file manager (e.g., **Cx File Explorer**, **Solid Explorer**).
+2. Add a new **WebDAV** connection with your server URL and credentials.
 
 ---
 
-## ⚙️ Configuration
+## Configuration
 
-Configuration is stored in `config.json` (auto-generated on first launch if absent):
+Configuration values are persisted in `config.json` (created automatically on first boot):
+
 ```json
 {
     "username": "admin",
@@ -124,11 +133,6 @@ Configuration is stored in `config.json` (auto-generated on first launch if abse
 
 ---
 
-## 🤝 Contributing
-
-Contributions, issues, and feature requests are welcome!
-Feel free to check the [issues page](https://github.com/your-username/privatedrive/issues).
-
-## 📄 License
+## License
 
 This project is licensed under the [MIT License](LICENSE).
