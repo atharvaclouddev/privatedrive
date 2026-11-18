@@ -24,6 +24,7 @@ class SSHTunnel:
         while not self._stop_event.is_set():
             cmd = [
                 "ssh",
+                "-T",
                 "-o", "StrictHostKeyChecking=no",
                 "-o", "ServerAliveInterval=30",
                 "-o", "ServerAliveCountMax=3",
