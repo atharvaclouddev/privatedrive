@@ -176,7 +176,16 @@
             <div class="section-header">
                 <div>
                     <h3 class="section-title">Host Storage Directory</h3>
-                    <p class="subtle-text">Host Path: <code id="storagePathLabel" class="inline-code">...</code></p>
+                    <div class="storage-path-bar">
+                        <span class="subtle-text">Host Path:</span>
+                        <code id="storagePathLabel" class="inline-code">...</code>
+                        <button class="btn-secondary btn-xs" onclick="openFolderModal()" title="Select folder to share">
+                            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 3px;">
+                                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                            </svg>
+                            Change Folder
+                        </button>
+                    </div>
                 </div>
                 <div class="section-actions">
                     <button class="btn-secondary btn-sm" onclick="fetchFiles()">Refresh</button>
@@ -232,6 +241,34 @@
                 <p class="subtle-text">Scan with any mobile camera to load portal:</p>
                 <div id="qrContainer" class="qr-box"></div>
                 <div class="qr-url-text" id="qrUrlLabel"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Folder Selection Modal -->
+    <div id="folderModal" class="modal-backdrop hidden" onclick="closeFolderModal(event)">
+        <div class="modal-content folder-modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3 style="font-size: 1.1rem; font-weight: 700;">Select Shared Folder</h3>
+                <button class="btn-close" onclick="closeFolderModal()">&times;</button>
+            </div>
+            <div class="modal-body" style="text-align: left;">
+                <p class="subtle-text" style="margin-bottom: 12px; font-size: 0.85rem;">Select which directory on your computer remote devices can access as <strong>Drive Z:\</strong>:</p>
+                
+                <div class="preset-label" style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px;">Quick Presets:</div>
+                <div id="folderPresetsList" class="folder-presets-grid">
+                    <!-- Populated via API -->
+                </div>
+
+                <div class="custom-path-group" style="margin-top: 14px;">
+                    <label for="customFolderPath" style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; display: block; margin-bottom: 6px;">Custom Absolute Path:</label>
+                    <input type="text" id="customFolderPath" class="custom-folder-input" placeholder="/home/weeknd/Downloads or ~/Documents">
+                </div>
+
+                <div class="modal-footer-actions" style="margin-top: 18px; display: flex; gap: 8px; justify-content: flex-end;">
+                    <button class="btn-secondary btn-sm" onclick="closeFolderModal()">Cancel</button>
+                    <button id="applyFolderBtn" class="btn-primary btn-sm" onclick="applySharedFolder()">Apply & Switch</button>
+                </div>
             </div>
         </div>
     </div>

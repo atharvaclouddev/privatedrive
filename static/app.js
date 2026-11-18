@@ -244,6 +244,85 @@ function closeQrModal(e) {
     }
 }
 
+// ----------------- Folder Switcher & Presets -----------------
+
+async function openFolderModal() {
+    const modal = document.getElementById('folderModal');
+    const input = document.getElementById('customFolderPath');
+    const list = document.getElementById('folderPresetsList');
+
+    input.value = state.storage_dir;
+    modal.classList.remove('hidden');
+
+    try {
+        const res = await fetch('/api/storage-presets');
+        if (res.ok) {
+            const data = await res.json();
+            if (data.presets && data.presets.length > 0) {
+                list.innerHTML = data.presets.map(p => `
+                    <button type="button" class="preset-chip ${p.path === state.storage_dir ? 'active' : ''}" 
+                            onclick="selectFolderPreset('${escapeHtmlForJs(p.path)}')">
+                        📁 ${escapeHtml(p.name)}
+                    </button>
+                `).join('');
+            }
+        }
+    } catch (e) {
+        console.error('Error fetching presets:', e);
+    }
+}
+
+function selectFolderPreset(path) {
+    document.getElementById('customFolderPath').value = path;
+    document.querySelectorAll('.preset-chip').forEach(c => c.classList.remove('active'));
+    if (event && event.target) {
+        event.target.classList.add('active');
+    }
+}
+
+function closeFolderModal(e) {
+    if (!e || e.target.id === 'folderModal' || e.target.classList.contains('btn-close') || e.target.innerText === 'Cancel') {
+        document.getElementById('folderModal').classList.add('hidden');
+    }
+}
+
+async function applySharedFolder() {
+    const input = document.getElementById('customFolderPath');
+    const newPath = input.value.trim();
+    if (!newPath) {
+        showToast('Please specify a folder path');
+        return;
+    }
+
+    const btn = document.getElementById('applyFolderBtn');
+    const oldText = btn.innerText;
+    btn.innerText = 'Switching...';
+    btn.disabled = true;
+
+    try {
+        const res = await fetch('/api/set-storage-dir', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ path: newPath })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            state.storage_dir = data.storage_dir;
+            document.getElementById('storagePathLabel').innerText = data.storage_dir;
+            document.getElementById('folderModal').classList.add('hidden');
+            showToast(data.message || 'Shared folder updated!');
+            await fetchFiles();
+        } else {
+            showToast(data.error || 'Failed to switch folder');
+        }
+    } catch (e) {
+        showToast('Network error while switching folder');
+    } finally {
+        btn.innerText = oldText;
+        btn.disabled = false;
+    }
+}
+
 // ----------------- Helpers -----------------
 
 function copyText(text, msg, btnElement) {

@@ -620,6 +620,71 @@ body {
 
 .empty-state { text-align: center; padding: 34px; color: var(--text-muted); font-size: 0.9rem; }
 
+/* ----------------- Folder Switcher & Presets ----------------- */
+.btn-xs {
+    padding: 3px 8px;
+    font-size: 0.74rem;
+    border-radius: 5px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+}
+.storage-path-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+}
+.folder-modal {
+    max-width: 480px;
+}
+.folder-presets-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+.preset-chip {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+}
+.preset-chip:hover {
+    background: rgba(0, 245, 155, 0.08);
+    border-color: var(--accent);
+    color: #fff;
+}
+.preset-chip.active {
+    background: rgba(0, 245, 155, 0.15);
+    border-color: var(--accent);
+    color: var(--accent);
+    font-weight: 600;
+}
+.custom-folder-input {
+    width: 100%;
+    background: #090c10;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 12px;
+    color: #fff;
+    font-family: var(--mono);
+    font-size: 0.84rem;
+    box-sizing: border-box;
+    transition: border-color 0.15s;
+}
+.custom-folder-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 10px rgba(0, 245, 155, 0.2);
+}
+
 @media (max-width: 768px) {
     .credentials-grid { grid-template-columns: 1fr; }
     .hide-mobile { display: none; }

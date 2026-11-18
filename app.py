@@ -7,6 +7,7 @@ import secrets
 import mimetypes
 import zipfile
 import io
+import argparse
 from datetime import datetime
 from pathlib import Path
 from functools import wraps
@@ -57,6 +58,24 @@ def load_or_init_config():
 config = load_or_init_config()
 STORAGE_DIR = Path(config["storage_dir"])
 STORAGE_DIR.mkdir(parents=True, exist_ok=True)
+dav_provider = FilesystemProvider(str(STORAGE_DIR))
+
+def update_shared_folder(new_path_str):
+    global STORAGE_DIR
+    expanded = Path(os.path.expanduser(str(new_path_str).strip())).resolve()
+    expanded.mkdir(parents=True, exist_ok=True)
+    STORAGE_DIR = expanded
+    config["storage_dir"] = str(expanded)
+    try:
+        with open(CONFIG_FILE, "w") as f:
+            json.dump(config, f, indent=4)
+    except Exception as e:
+        print(f" [!] Warning: Failed to persist config: {e}")
+
+    if dav_provider:
+        dav_provider.root_folder_path = str(expanded)
+        dav_provider.root_folder_path_real = os.path.realpath(str(expanded))
+    return str(expanded)
 
 # ----------------- Helpers -----------------
 
@@ -254,6 +273,44 @@ def handle_notes():
         save_notes(notes)
         return jsonify({"success": True})
 
+@flask_app.route('/api/storage-presets', methods=['GET'])
+@require_auth
+def get_storage_presets():
+    home = Path.home()
+    default_presets = [
+        {"name": "PrivateDrive Default", "path": str(DEFAULT_STORAGE)},
+        {"name": "Downloads", "path": str(home / "Downloads")},
+        {"name": "Documents", "path": str(home / "Documents")},
+        {"name": "Pictures", "path": str(home / "Pictures")},
+        {"name": "Desktop", "path": str(home / "Desktop")}
+    ]
+    available = []
+    for p in default_presets:
+        path_obj = Path(p["path"])
+        if path_obj.exists() or p["path"] == str(DEFAULT_STORAGE):
+            available.append(p)
+    return jsonify({
+        "current": str(STORAGE_DIR),
+        "presets": available
+    })
+
+@flask_app.route('/api/set-storage-dir', methods=['POST'])
+@require_auth
+def set_storage_dir():
+    data = request.get_json(silent=True) or {}
+    new_path = data.get("path", "").strip()
+    if not new_path:
+        return jsonify({"error": "Path cannot be empty"}), 400
+    try:
+        updated_path = update_shared_folder(new_path)
+        return jsonify({
+            "status": "ok",
+            "storage_dir": updated_path,
+            "message": f"Shared folder updated to: {updated_path}"
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @flask_app.after_request
 def add_dav_headers(response):
     if request.method == 'OPTIONS':
@@ -266,7 +323,7 @@ def add_dav_headers(response):
 def create_dav_app():
     dav_config = {
         "provider_mapping": {
-            "/": FilesystemProvider(str(STORAGE_DIR))
+            "/": dav_provider
         },
         "simple_dc": {
             "user_mapping": {
@@ -315,6 +372,22 @@ def on_tunnel_ready(url):
 
 def main():
     global ssh_tunnel
+    parser = argparse.ArgumentParser(description="PrivateDrive - Self-hosted Virtual Network Drive")
+    parser.add_argument("-d", "--dir", dest="storage_dir", help="Directory path to share as virtual drive")
+    parser.add_argument("-p", "--port", type=int, help="Port to listen on")
+    parser.add_argument("--no-tunnel", action="store_true", help="Disable reverse SSH tunnel")
+    args, unknown = parser.parse_known_args()
+
+    if args.storage_dir:
+        update_shared_folder(args.storage_dir)
+    elif unknown and not unknown[0].startswith("-"):
+        update_shared_folder(unknown[0])
+
+    if args.port:
+        config["port"] = args.port
+    if args.no_tunnel:
+        config["tunnel_enabled"] = False
+
     port = int(os.environ.get("PORT", config["port"]))
     is_render = os.environ.get("RENDER") is not None
     render_external_url = os.environ.get("RENDER_EXTERNAL_URL")
