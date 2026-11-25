@@ -154,12 +154,25 @@
 
             <!-- macOS Guide -->
             <div id="guide-mac" class="guide-panel">
-                <ol class="steps-list">
-                    <li>Open <strong>Finder</strong> on macOS.</li>
-                    <li>Press <kbd>Cmd</kbd> + <kbd>K</kbd> (Connect to Server).</li>
-                    <li>Enter: <code class="inline-code" id="guideMacUrl">...</code></li>
-                    <li>Select <strong>Registered User</strong>, enter credentials, and mount as a shared volume.</li>
-                </ol>
+                <div class="guide-fast-command">
+                    <span class="cmd-label">⚡ 1-Click Terminal Mount (Execute in standard Mac Terminal):</span>
+                    <div class="code-box">
+                        <code id="macCliCommand">Generating Mac command...</code>
+                        <button class="btn-primary btn-sm" onclick="copyText(document.getElementById('macCliCommand').innerText, 'Mac command copied!', this)">Copy Command</button>
+                    </div>
+                </div>
+
+                <div class="steps-list">
+                    <h4>Manual GUI Mounting (macOS Finder):</h4>
+                    <ol class="steps-list">
+                        <li>Open <strong>Finder</strong> on macOS.</li>
+                        <li>Press <kbd>Cmd</kbd> + <kbd>K</kbd> (Connect to Server).</li>
+                        <li>In <strong>Server Address</strong>, enter: <code class="inline-code" id="guideMacUrl">...</code></li>
+                        <li>Click <strong>Connect</strong> → Select <strong>Registered User</strong>.</li>
+                        <li>Enter Username <code id="guideMacUser" class="inline-code">admin</code> and Password → Click <strong>Connect</strong>.</li>
+                        <li>The shared folder mounts as a native disk on your Mac Desktop.</li>
+                    </ol>
+                </div>
             </div>
 
             <!-- Mobile Guide -->

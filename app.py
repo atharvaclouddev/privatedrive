@@ -322,6 +322,7 @@ def add_dav_headers(response):
 
 def create_dav_app():
     dav_config = {
+        "mount_path": "/drive",
         "provider_mapping": {
             "/": dav_provider
         },
@@ -340,23 +341,81 @@ def create_dav_app():
             "default_to_digest": False
         },
         "hotfixes": {
-            "win_accept_anonymous_options": True
+            "win_accept_anonymous_options": True,
+            "re_encode_path_info": True
         },
         "verbose": 0,
         "logging": {"enable": False}
     }
     return WsgiDAVApp(dav_config)
 
-# Combine Flask + WebDAV into single WSGI dispatcher
+class SmartWebDAVDispatcher:
+    """
+    Unified WSGI dispatcher that:
+    1. Routes /drive to WsgiDAV with proper mount_path namespace.
+    2. Intercepts macOS AppleDouble dotfiles (._*, .DS_Store, .Trashes, .fseventsd)
+       to return immediate 404s, eliminating the 5-6 min Cheroot thread pool freeze.
+    3. Handles WebDAV methods on root '/' by redirecting to '/drive/', preventing 405 Method Not Allowed on Finder.
+    4. Handles root OPTIONS pings with proper DAV 1,2 compliance headers.
+    5. Routes everything else to Flask dashboard.
+    """
+    def __init__(self, flask_app, dav_app):
+        self.flask_app = flask_app
+        self.dav_app = dav_app
+        self.dispatcher = DispatcherMiddleware(flask_app, {
+            '/drive': dav_app
+        })
+
+    def __call__(self, environ, start_response):
+        path = environ.get('PATH_INFO', '')
+        method = environ.get('REQUEST_METHOD', 'GET')
+        user_agent = environ.get('HTTP_USER_AGENT', '')
+
+        # Fast-path for macOS AppleDouble / Junk dotfiles that do not exist
+        # Eliminates Cheroot thread starvation on macOS Finder connections
+        segments = [s for s in path.split('/') if s]
+        if any(seg.startswith('._') or seg in ('.DS_Store', '.Trashes', '.fseventsd', '.Spotlight-V100') for seg in segments):
+            rel_path = path.removeprefix('/drive').lstrip('/')
+            full_path = STORAGE_DIR / rel_path
+            if not full_path.exists():
+                start_response('404 Not Found', [
+                    ('Content-Type', 'text/plain'),
+                    ('Content-Length', '0')
+                ])
+                return [b'']
+
+        # If a WebDAV client queries root '/' without '/drive/'
+        if path in ('', '/'):
+            if method in ('PROPFIND', 'PROPPATCH', 'MKCOL', 'COPY', 'MOVE', 'LOCK', 'UNLOCK') or \
+               'WebDAVFS' in user_agent or 'Microsoft-WebDAV' in user_agent:
+                start_response('301 Moved Permanently', [
+                    ('Location', '/drive/'),
+                    ('Content-Type', 'text/html'),
+                    ('Content-Length', '0')
+                ])
+                return [b'']
+
+            if method == 'OPTIONS':
+                start_response('200 OK', [
+                    ('DAV', '1, 2'),
+                    ('MS-Author-Via', 'DAV'),
+                    ('Allow', 'OPTIONS, GET, HEAD, PROPFIND'),
+                    ('Content-Type', 'text/html; charset=utf-8'),
+                    ('Content-Length', '0')
+                ])
+                return [b'']
+
+        return self.dispatcher(environ, start_response)
+
+# Combine Flask + WebDAV into smart dispatcher
 dav_sub_app = create_dav_app()
-unified_wsgi_app = DispatcherMiddleware(flask_app, {
-    '/drive': dav_sub_app
-})
+unified_wsgi_app = SmartWebDAVDispatcher(flask_app, dav_sub_app)
 
 # ----------------- Tunnel & Runner -----------------
 
 def on_tunnel_ready(url):
     drive_url = f"{url}/drive"
+    mac_url = f"{url}/drive/"
     print("\n" + "="*62)
     print(" 🚀 PRIVATEDRIVE GLOBAL ACCESS READY (Any Device, Anywhere)")
     print("="*62)
@@ -367,6 +426,8 @@ def on_tunnel_ready(url):
     print("="*62)
     print("\n[Windows 'Map Network Drive' Command (Paste in second laptop cmd)]:")
     print(f'net use Z: "{drive_url}" /user:{config["username"]} {config["password"]} /persistent:yes')
+    print("\n[macOS 1-Click Terminal Command (Paste in Mac Terminal)]:")
+    print(f'open "{mac_url}"')
     print("="*62)
     print_qr_terminal(url, title="Scan with Phone Camera to Open Dashboard")
 
@@ -414,7 +475,13 @@ def main():
         print(f" [*] Running on Render Cloud at: {local_base}")
         print(f" [Windows Command]: net use Z: \"{local_drive}\" /user:{config['username']} {config['password']} /persistent:yes")
 
-    server = wsgi.Server(('0.0.0.0', port), unified_wsgi_app)
+    server = wsgi.Server(
+        ('0.0.0.0', port),
+        unified_wsgi_app,
+        numthreads=50,
+        request_queue_size=30,
+        timeout=15
+    )
     try:
         server.start()
     except (KeyboardInterrupt, SystemExit):

@@ -101,10 +101,9 @@ Alternatively, mount via **File Explorer**:
 2. Select Drive **`Z:`** and enter the folder URL: `https://<domain>.app.lhr.life/drive`
 3. Check **Connect using different credentials**, click **Finish**, and enter your credentials.
 
-### macOS (Finder)
-1. Open **Finder** → Press <kbd>Cmd</kbd> + <kbd>K</kbd> (Connect to Server).
-2. Enter: `https://<domain>.app.lhr.life/drive`
-3. Select **Registered User** and provide the username and password.
+### macOS (Finder & Terminal)
+* **Option A (GUI Finder):** Open **Finder** → Press <kbd>Cmd</kbd> + <kbd>K</kbd> (Connect to Server) → Enter `https://<domain>.app.lhr.life/drive/` *(include trailing slash)* → Select **Registered User** and provide credentials.
+* **Option B (1-Click Terminal):** Run `open "https://<domain>.app.lhr.life/drive/"` in Terminal to launch Finder pre-populated with the server URL.
 
 ### iOS / iPadOS
 1. Open the native **Files** app.

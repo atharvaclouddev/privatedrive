@@ -58,8 +58,14 @@ async function fetchStatus() {
         document.getElementById('winCliCommand').innerText = winCmd;
         document.getElementById('guideWinUrl').innerText = state.active_drive;
         document.getElementById('guideWinUser').innerText = state.username;
+
+        const macUrl = state.active_drive ? `${state.active_drive}/` : '';
         const macEl = document.getElementById('guideMacUrl');
-        if (macEl) macEl.innerText = state.active_drive;
+        if (macEl) macEl.innerText = macUrl;
+        const macUserEl = document.getElementById('guideMacUser');
+        if (macUserEl) macUserEl.innerText = state.username;
+        const macCliEl = document.getElementById('macCliCommand');
+        if (macCliEl) macCliEl.innerText = `open "${macUrl}"`;
 
     } catch (e) {
         console.error('Error fetching status', e);
